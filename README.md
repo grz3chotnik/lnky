@@ -1,6 +1,8 @@
 # lnky
-
 A modern link-in-bio platform that lets you share all your important links from one customizable page.
+
+<img width="586" height="752" alt="Screenshot 2026-01-31 at 20 51 52" src="https://github.com/user-attachments/assets/301b954f-310b-4c6c-be0d-b85517989929" />
+
 
 ## Features
 
