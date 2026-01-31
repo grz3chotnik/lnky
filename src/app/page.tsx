@@ -2,6 +2,25 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { TypingUsername } from "@/components/typing-username";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Lnky - One link for all your links",
+  description: "Create your personalized link-in-bio page in seconds. Share your content, social profiles, and more with a single link.",
+  openGraph: {
+    title: "Lnky - One link for all your links",
+    description: "Create your personalized link-in-bio page in seconds. Share your content, social profiles, and more with a single link.",
+    url: "https://lnky.lol",
+    siteName: "Lnky",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lnky - One link for all your links",
+    description: "Create your personalized link-in-bio page in seconds. Share your content, social profiles, and more with a single link.",
+  },
+};
 
 export default async function LandingPage() {
   const session = await auth();
@@ -72,15 +91,15 @@ export default async function LandingPage() {
           <div className="mt-10 sm:mt-12 grid grid-cols-3 gap-4 sm:gap-8 max-w-sm sm:max-w-none mx-auto">
             <div>
               <p className="text-2xl sm:text-3xl font-bold">{userCount.toLocaleString()}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Users</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Total Users</p>
             </div>
             <div className="border-l border-r border-border px-4 sm:px-8">
               <p className="text-2xl sm:text-3xl font-bold">{linkCount.toLocaleString()}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Links</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Total Links</p>
             </div>
             <div>
               <p className="text-2xl sm:text-3xl font-bold">{totalViews.toLocaleString()}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">Views</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Total Views</p>
             </div>
           </div>
 
@@ -88,7 +107,7 @@ export default async function LandingPage() {
           <div className="mt-8 sm:mt-10 p-3 sm:p-4 bg-muted rounded-lg inline-block">
             <p className="text-muted-foreground text-xs sm:text-sm">Your link will look like:</p>
             <p className="text-base sm:text-lg font-mono mt-1">
-              lnky.lol/<span className="text-primary font-semibold">yourname</span>
+              lnky.lol/<TypingUsername />
             </p>
           </div>
         </div>
@@ -97,7 +116,7 @@ export default async function LandingPage() {
       {/* Footer */}
       <footer className="border-t py-6">
         <div className="max-w-5xl mx-auto px-4 text-center text-muted-foreground text-xs sm:text-sm">
-          Built with ❤️ by <Link href="https://github.com/grz3chotnik" >grz3chotnik</Link>
+          Built with ❤️ by grz3chotnik
         </div>
       </footer>
     </div>

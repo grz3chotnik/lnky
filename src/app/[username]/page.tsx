@@ -111,7 +111,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   );
 }
 
-// Generate metadata for SEO
+// Generate metadata for SEO and social sharing
 export async function generateMetadata({ params }: ProfilePageProps) {
   const { username } = await params;
 
@@ -123,8 +123,37 @@ export async function generateMetadata({ params }: ProfilePageProps) {
     return { title: "User not found" };
   }
 
+  const displayName = user.displayName || `@${user.username}`;
+  const description = user.bio || `Check out ${displayName}'s links on Lnky`;
+  const url = `https://lnky.lol/${user.username}`;
+
   return {
-    title: `${user.displayName || `@${user.username}`}`,
-    description: user.bio || `Check out ${user.displayName || user.username}'s links`,
+    title: displayName,
+    description,
+    openGraph: {
+      title: displayName,
+      description,
+      url,
+      siteName: "Lnky",
+      type: "profile",
+      ...(user.avatarUrl && {
+        images: [
+          {
+            url: user.avatarUrl,
+            width: 400,
+            height: 400,
+            alt: displayName,
+          },
+        ],
+      }),
+    },
+    twitter: {
+      card: user.avatarUrl ? "summary" : "summary",
+      title: displayName,
+      description,
+      ...(user.avatarUrl && {
+        images: [user.avatarUrl],
+      }),
+    },
   };
 }

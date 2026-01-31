@@ -66,12 +66,12 @@ export function ProfileLinks({ links, accentColor }: ProfileLinksProps) {
                 />
               </div>
             ) : faviconUrl ? (
-              <div className="absolute left-4 w-8 h-8 rounded overflow-hidden bg-white/10 flex items-center justify-center">
+              <div className="absolute left-4 w-10 h-10 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={faviconUrl}
                   alt=""
-                  className="w-5 h-5"
+                  className="w-6 h-6"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                   }}

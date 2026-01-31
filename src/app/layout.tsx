@@ -10,8 +10,20 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Lnky",
+  metadataBase: new URL("https://lnky.lol"),
+  title: {
+    default: "Lnky",
+    template: "%s | Lnky",
+  },
   description: "Create your personalized link-in-bio page in seconds",
+  openGraph: {
+    siteName: "Lnky",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default function RootLayout({
