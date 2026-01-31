@@ -70,6 +70,7 @@ export async function PATCH(
         ...(body.url !== undefined && { url: body.url }),
         ...(body.order !== undefined && { order: body.order }),
         ...(body.active !== undefined && { active: body.active }),
+        ...("imageUrl" in body && { imageUrl: body.imageUrl }),
       },
     });
 

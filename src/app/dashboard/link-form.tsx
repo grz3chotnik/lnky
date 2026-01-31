@@ -4,14 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
-// Form to add a new link
-// "use client" because we need form state and API calls
+import { Plus } from "lucide-react";
 
 interface LinkFormProps {
   userId: string;
-  linkCount: number; // Used to set the order of new links
+  linkCount: number;
 }
 
 export function LinkForm({ userId, linkCount }: LinkFormProps) {
@@ -21,14 +18,14 @@ export function LinkForm({ userId, linkCount }: LinkFormProps) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     setLoading(true);
     setError("");
 
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(form);
     const title = formData.get("title") as string;
     let url = formData.get("url") as string;
 
-    // Add https:// if no protocol specified
     if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
       url = `https://${url}`;
     }
@@ -40,59 +37,58 @@ export function LinkForm({ userId, linkCount }: LinkFormProps) {
         body: JSON.stringify({
           title,
           url,
-          order: linkCount, // New links go at the end
+          order: linkCount,
         }),
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || "Failed to add link");
-        setLoading(false);
+        const text = await res.text();
+        try {
+          const data = JSON.parse(text);
+          setError(data.error || "Failed to add link");
+        } catch {
+          setError(`Server error: ${res.status}`);
+        }
         return;
       }
 
-      // Success! Clear form and refresh the page to show new link
-      e.currentTarget.reset();
+      form.reset();
       router.refresh();
-    } catch {
-      setError("Something went wrong");
+    } catch (err) {
+      console.error("Link form error:", err);
+      setError(err instanceof Error ? err.message : "Network error");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-3">
       {error && (
-        <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">
+        <div className="bg-destructive/10 text-destructive text-sm p-2.5 rounded-lg">
           {error}
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="title">Title</Label>
+      <div className="flex flex-col sm:flex-row gap-2">
         <Input
-          id="title"
           name="title"
-          placeholder="My Website"
+          placeholder="Title"
           required
+          className="sm:flex-1"
         />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="url">URL</Label>
         <Input
-          id="url"
           name="url"
-          type="url"
-          placeholder="https://example.com"
+          type="text"
+          placeholder="URL"
           required
+          className="sm:flex-[2]"
         />
+        <Button type="submit" disabled={loading} className="gap-1.5">
+          <Plus className="w-4 h-4" />
+          <span>{loading ? "Adding..." : "Add"}</span>
+        </Button>
       </div>
-
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Adding..." : "Add link"}
-      </Button>
     </form>
   );
 }
