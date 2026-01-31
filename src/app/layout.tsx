@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
+import {Analytics} from "@vercel/analytics/react";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body className={`${poppins.variable} ${poppins.className} antialiased`}>
         {children}
         <Toaster theme="dark" position="bottom-right" richColors />
+      <Analytics />
       </body>
     </html>
   );
