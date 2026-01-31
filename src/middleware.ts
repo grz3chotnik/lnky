@@ -37,5 +37,5 @@ export default auth((req) => {
 // Configure which routes middleware runs on
 export const config = {
   // Match all routes except static files and API routes
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|icon.svg).*)"],
 };

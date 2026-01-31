@@ -5,6 +5,18 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useUploadThing } from "@/lib/uploadthing-client";
 import { X } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 interface ProfileImageUploadProps {
   currentImageUrl: string | null;
@@ -13,7 +25,6 @@ interface ProfileImageUploadProps {
 
 export function ProfileImageUpload({ currentImageUrl, username }: ProfileImageUploadProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl);
-  const [error, setError] = useState<string | null>(null);
   const [isRemoving, setIsRemoving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -22,11 +33,12 @@ export function ProfileImageUpload({ currentImageUrl, username }: ProfileImageUp
     onClientUploadComplete: (res) => {
       if (res?.[0]?.url) {
         setPreviewUrl(res[0].url);
+        toast.success("Profile image uploaded");
         router.refresh();
       }
     },
     onUploadError: (err) => {
-      setError(err.message || "Upload failed");
+      toast.error(err.message || "Failed to upload image");
       setPreviewUrl(currentImageUrl);
     },
   });
@@ -35,7 +47,6 @@ export function ProfileImageUpload({ currentImageUrl, username }: ProfileImageUp
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setError(null);
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
 
@@ -49,15 +60,15 @@ export function ProfileImageUpload({ currentImageUrl, username }: ProfileImageUp
 
   const handleRemove = async () => {
     setIsRemoving(true);
-    setError(null);
 
     try {
       const res = await fetch("/api/user/avatar", { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to remove");
       setPreviewUrl(null);
+      toast.success("Profile image removed");
       router.refresh();
     } catch {
-      setError("Failed to remove image");
+      toast.error("Failed to remove image");
     } finally {
       setIsRemoving(false);
     }
@@ -94,13 +105,25 @@ export function ProfileImageUpload({ currentImageUrl, username }: ProfileImageUp
       </button>
 
       {previewUrl && !isLoading && (
-        <button
-          type="button"
-          onClick={handleRemove}
-          className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90"
-        >
-          <X className="w-3 h-3" />
-        </button>
+        <AlertDialog>
+          <AlertDialogTrigger className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90 cursor-pointer">
+            <X className="w-3 h-3" />
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remove profile image?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will remove your profile picture.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleRemove}>
+                Remove
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
 
       <input
@@ -110,12 +133,6 @@ export function ProfileImageUpload({ currentImageUrl, username }: ProfileImageUp
         onChange={handleFileSelect}
         className="hidden"
       />
-
-      {error && (
-        <p className="absolute -bottom-5 left-0 right-0 text-xs text-destructive text-center truncate">
-          {error}
-        </p>
-      )}
     </div>
   );
 }

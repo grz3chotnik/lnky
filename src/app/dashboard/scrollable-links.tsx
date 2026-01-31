@@ -10,6 +10,8 @@ interface Link {
   imageUrl: string | null;
   active: boolean;
   order: number;
+  type: string;
+  platform: string | null;
 }
 
 interface ScrollableLinksProps {

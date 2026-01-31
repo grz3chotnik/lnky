@@ -13,7 +13,7 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
-  username      String    @unique // The claimed username (e.g., "john" for lnky.com/john)
+  username      String    @unique // The claimed username (e.g., "john" for lnky.lol/john)
   password      String    // Hashed password
   displayName   String?   // Display name shown on profile
   bio           String?   // Short bio/description

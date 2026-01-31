@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Signup Page with username claiming
-// The username becomes their public URL (e.g., lnky.com/username)
+// The username becomes their public URL (e.g., lnky.lol/username)
 
 export default function SignupPage() {
   const router = useRouter();
@@ -99,7 +99,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <Link href="/" className="text-2xl font-bold mb-2 inline-block">
-            lnky
+            Lnky
           </Link>
           <CardTitle>Create your account</CardTitle>
           <CardDescription>Claim your unique username</CardDescription>
@@ -117,7 +117,7 @@ export default function SignupPage() {
               <Label htmlFor="username">Username</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                  lnky.com/
+                  lnky.lol/
                 </span>
                 <Input
                   id="username"

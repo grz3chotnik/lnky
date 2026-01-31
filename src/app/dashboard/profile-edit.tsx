@@ -46,10 +46,8 @@ export function ProfileEdit({ currentDisplayName, currentBio }: ProfileEditProps
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Pencil className="w-3.5 h-3.5" />
-        </Button>
+      <DialogTrigger className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer">
+        <Pencil className="w-3.5 h-3.5" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

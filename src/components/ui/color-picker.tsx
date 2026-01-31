@@ -13,15 +13,13 @@ interface ColorPickerProps {
 export function ColorPicker({ value, onChange, className }: ColorPickerProps) {
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <button
-          className={`w-9 h-9 rounded-md border border-input cursor-pointer ${className}`}
-          style={{ backgroundColor: value || "#ffffff" }}
-        />
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-3" align="start">
+      <PopoverTrigger
+        className={`w-9 h-9 rounded-md border border-input cursor-pointer ${className}`}
+        style={{ backgroundColor: value || "#ffffff" }}
+      />
+      <PopoverContent className="w-auto p-3">
         <div className="space-y-3">
-          <HexColorPicker color={value || "#ffffff"} onChange={onChange}  />
+          <HexColorPicker color={value || "#ffffff"} onChange={onChange} />
           <Input
             value={value}
             onChange={(e) => onChange(e.target.value)}

@@ -8,7 +8,6 @@ import { LinkForm } from "./link-form";
 import { ScrollableLinks } from "./scrollable-links";
 import { SignOutButton } from "./sign-out-button";
 import { ProfileImageUpload } from "./profile-image-upload";
-import { SocialLinks } from "./social-links";
 import { Customization } from "./customization";
 import { Statistics } from "./statistics";
 import { ProfileEdit } from "./profile-edit";
@@ -21,13 +20,10 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const allLinks = await db.link.findMany({
+  const links = await db.link.findMany({
     where: { userId: session.user.id },
     orderBy: { order: "asc" },
   });
-
-  const links = allLinks.filter((l) => l.type !== "social");
-  const socialLinks = allLinks.filter((l) => l.type === "social");
 
   const user = await db.user.findUnique({
     where: { id: session.user.id },
@@ -39,7 +35,7 @@ export default async function DashboardPage() {
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="text-2xl font-bold">
-            lnky
+            Lnky
           </Link>
           <SignOutButton />
         </div>
@@ -65,7 +61,7 @@ export default async function DashboardPage() {
                   />
                 </div>
                 <p className="text-sm text-muted-foreground truncate">
-                  lnky.com/{session.user.username}
+                  lnky.lol/{session.user.username}
                 </p>
                 {user?.bio && (
                   <p className="text-sm text-muted-foreground truncate mt-0.5">
@@ -114,22 +110,6 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Social Icons */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Socials</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <SocialLinks
-              existingLinks={socialLinks.map((l) => ({
-                id: l.id,
-                platform: l.platform ?? "",
-                url: l.url,
-              }))}
-            />
-          </CardContent>
-        </Card>
 
         {/* Customization */}
         <Card>

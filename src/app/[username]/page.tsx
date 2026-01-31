@@ -2,9 +2,8 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import Image from "next/image";
-import { getPlatformById } from "@/lib/social-platforms";
 import { TrackView } from "@/components/track-view";
-import {EyeIcon} from "lucide-react";
+import { ProfileLinks } from "@/components/profile-links";
 
 // Public Profile Page - Shows user's links at /username
 // This is what visitors see when they click someone's lnky link
@@ -31,10 +30,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   if (!user) {
     notFound();
   }
-
-  // Separate regular links from social links
-  const regularLinks = user.links.filter((l) => l.type !== "social");
-  const socialLinks = user.links.filter((l) => l.type === "social");
 
   // Build custom styles
   const customStyles: React.CSSProperties = {};
@@ -97,83 +92,18 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
         {/* Links */}
         <div className="space-y-4">
-          {regularLinks.length === 0 && socialLinks.length === 0 ? (
-            <p className="text-center opacity-60">
-              No links yet
-            </p>
-          ) : (
-            regularLinks.map((link) => (
-              <a
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative flex items-center justify-center w-full p-4 rounded-xl font-medium hover:scale-[1.02] transition-all duration-200 backdrop-blur-md"
-                style={{
-                  backgroundColor: user.accentColor
-                    ? `${user.accentColor}cc`
-                    : "rgba(255, 255, 255, 0.15)",
-                  color: user.accentColor ? "#fff" : undefined,
-                  border: "1px solid rgba(255, 255, 255, 0.2)",
-                }}
-              >
-                {link.imageUrl && (
-                  <div className="absolute left-4 w-10 h-10 rounded-lg overflow-hidden">
-                    <Image
-                      src={link.imageUrl}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <span className="text-center">
-                  {link.title}
-                </span>
-              </a>
-            ))
-          )}
+          <ProfileLinks links={user.links} accentColor={user.accentColor} />
         </div>
-
-        {socialLinks.length > 0 && (
-          <div className="flex justify-center gap-4 mt-8">
-            {socialLinks.map((link) => {
-              const platform = getPlatformById(link.platform ?? "");
-              if (!platform) return null;
-              const Icon = platform.icon;
-              return (
-                <a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-11 h-11 flex items-center justify-center rounded-full hover:scale-110 transition-all duration-200 backdrop-blur-md"
-                  style={{
-                    backgroundColor: user.accentColor
-                      ? `${user.accentColor}cc`
-                      : "rgba(255, 255, 255, 0.15)",
-                    color: user.accentColor ? "#fff" : undefined,
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
-                  }}
-                  title={platform.name}
-                >
-                  <Icon className="w-5 h-5" />
-                </a>
-              );
-            })}
-          </div>
-        )}
 
         {/* Footer */}
         <div className="mt-12 text-center space-y-2">
-          <p className="text-xs opacity-40">{user.profileViews.toLocaleString()} views  </p>
+          <p className="text-xs opacity-40">{user.profileViews.toLocaleString()} views</p>
 
           <Link
             href="/"
             className="text-sm text-muted-foreground hover:text-foreground"
           >
-            Create your own lnky
+            Create your own Lnky
           </Link>
         </div>
       </div>

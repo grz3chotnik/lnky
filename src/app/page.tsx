@@ -21,7 +21,7 @@ export default async function LandingPage() {
       <nav className="border-b">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="text-4xl font-bold">
-            lnky
+            Lnky
           </Link>
           <div className="flex gap-2">
             {isLoggedIn ? (
@@ -88,7 +88,7 @@ export default async function LandingPage() {
           <div className="mt-8 sm:mt-10 p-3 sm:p-4 bg-muted rounded-lg inline-block">
             <p className="text-muted-foreground text-xs sm:text-sm">Your link will look like:</p>
             <p className="text-base sm:text-lg font-mono mt-1">
-              lnky.com/<span className="text-primary font-semibold">yourname</span>
+              lnky.lol/<span className="text-primary font-semibold">yourname</span>
             </p>
           </div>
         </div>

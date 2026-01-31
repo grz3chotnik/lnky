@@ -73,6 +73,21 @@ export async function POST(request: Request) {
       },
     });
 
+    // Send ntfy notification
+    if (process.env.NTFY_TOPIC) {
+      fetch(`https://ntfy.sh/${process.env.NTFY_TOPIC}`, {
+        method: "POST",
+        headers: {
+          "Title": "New Lnky signup",
+          "Priority": "default",
+          "Tags": "tada",
+        },
+        body: `${user.username} (${user.email})`,
+      }).catch(() => {
+        // Ignore notification errors
+      });
+    }
+
     // Return success (without password!)
     return NextResponse.json(
       {

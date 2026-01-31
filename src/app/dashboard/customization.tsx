@@ -8,6 +8,18 @@ import { ImageIcon, X, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ColorPicker } from "@/components/ui/color-picker";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 interface CustomizationProps {
   currentBackgroundUrl: string | null;
@@ -41,8 +53,13 @@ export function Customization({
     onClientUploadComplete: (res) => {
       if (res?.[0]?.url) {
         setBackgroundUrl(res[0].url);
+        toast.success("Background image uploaded");
         router.refresh();
       }
+    },
+    onUploadError: (err) => {
+      toast.error(err.message || "Failed to upload background");
+      setBackgroundUrl(currentBackgroundUrl);
     },
   });
 
@@ -60,7 +77,10 @@ export function Customization({
     try {
       await fetch("/api/user/background", { method: "DELETE" });
       setBackgroundUrl(null);
+      toast.success("Background image removed");
       router.refresh();
+    } catch {
+      toast.error("Failed to remove background");
     } finally {
       setRemovingBg(false);
     }
@@ -78,7 +98,10 @@ export function Customization({
           accentColor: accentColor || null,
         }),
       });
+      toast.success("Colors saved");
       router.refresh();
+    } catch {
+      toast.error("Failed to save colors");
     } finally {
       setSavingColors(false);
     }
@@ -99,7 +122,10 @@ export function Customization({
       setBgColor("");
       setTextColor("");
       setAccentColor("");
+      toast.success("Colors reset");
       router.refresh();
+    } catch {
+      toast.error("Failed to reset colors");
     } finally {
       setSavingColors(false);
     }
@@ -180,13 +206,25 @@ export function Customization({
             )}
           </button>
           {backgroundUrl && !uploadingBg && (
-            <button
-              onClick={removeBackground}
-              disabled={removingBg}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90"
-            >
-              <X className="w-3 h-3" />
-            </button>
+            <AlertDialog>
+              <AlertDialogTrigger className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90 cursor-pointer">
+                <X className="w-3 h-3" />
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Remove background image?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will remove your background image.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={removeBackground}>
+                    Remove
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
         <div className="text-xs text-muted-foreground">

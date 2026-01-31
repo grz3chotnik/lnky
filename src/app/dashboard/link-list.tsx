@@ -20,9 +20,22 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, ImagePlus, X } from "lucide-react";
+import { GripVertical, ImagePlus, X, Link as LinkIcon } from "lucide-react";
 import Image from "next/image";
 import { useUploadThing } from "@/lib/uploadthing-client";
+import { getPlatformById } from "@/lib/social-platforms";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 interface Link {
   id: string;
@@ -31,6 +44,8 @@ interface Link {
   imageUrl: string | null;
   active: boolean;
   order: number;
+  type: string;
+  platform: string | null;
 }
 
 interface LinkListProps {
@@ -55,20 +70,24 @@ function SortableLinkItem({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
+  const platform = link.platform ? getPlatformById(link.platform) : null;
+  const isSocial = link.type === "social" && platform;
+
   const { startUpload } = useUploadThing("linkImage", {
     onClientUploadComplete: async (res) => {
       if (res?.[0]?.url) {
-        // Update the link with the new image URL
         await fetch(`/api/links/${link.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ imageUrl: res[0].url }),
         });
         onImageUpdate(link.id, res[0].url);
+        toast.success("Link image uploaded");
       }
       setUploading(false);
     },
-    onUploadError: () => {
+    onUploadError: (err) => {
+      toast.error(err.message || "Failed to upload image");
       setUploading(false);
     },
   });
@@ -81,12 +100,17 @@ function SortableLinkItem({
   };
 
   const handleRemoveImage = async () => {
-    await fetch(`/api/links/${link.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageUrl: null }),
-    });
-    onImageUpdate(link.id, null);
+    try {
+      await fetch(`/api/links/${link.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl: null }),
+      });
+      onImageUpdate(link.id, null);
+      toast.success("Link image removed");
+    } catch {
+      toast.error("Failed to remove image");
+    }
   };
 
   const {
@@ -119,24 +143,55 @@ function SortableLinkItem({
         <GripVertical className="w-5 h-5" />
       </button>
 
-      {/* Image thumbnail or upload button */}
+      {/* Icon/Image section */}
       <div className="relative">
         {link.imageUrl ? (
-          <div className="relative w-10 h-10 rounded overflow-hidden group">
-            <Image
-              src={link.imageUrl}
-              alt=""
-              fill
-              className="object-cover"
-            />
-            <button
-              onClick={handleRemoveImage}
-              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-            >
-              <X className="w-4 h-4 text-white" />
-            </button>
-          </div>
+          // Custom image (for both regular and social links)
+          <AlertDialog>
+            <div className="relative w-10 h-10 rounded overflow-hidden group">
+              <Image
+                src={link.imageUrl}
+                alt=""
+                fill
+                className="object-cover"
+              />
+              <AlertDialogTrigger className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
+                <X className="w-4 h-4 text-white" />
+              </AlertDialogTrigger>
+            </div>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Remove image?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will remove the custom image from this link.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleRemoveImage}>
+                  Remove
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : isSocial ? (
+          // Social platform icon (clickable to upload)
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors cursor-pointer"
+          >
+            {uploading ? (
+              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            ) : (
+              (() => {
+                const Icon = platform.icon;
+                return <Icon className="w-5 h-5" />;
+              })()
+            )}
+          </button>
         ) : (
+          // Upload button for regular links
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
@@ -270,37 +325,59 @@ export function LinkList({ links: initialLinks }: LinkListProps) {
   if (!mounted) {
     return (
       <div className="space-y-3">
-        {links.map((link) => (
-          <div
-            key={link.id}
-            className={`flex items-center gap-2 p-3 border rounded-lg bg-card ${
-              !link.active ? "opacity-50" : ""
-            }`}
-          >
-            <div className="text-muted-foreground">
-              <GripVertical className="w-5 h-5" />
+        {links.map((link) => {
+          const platform = link.platform ? getPlatformById(link.platform) : null;
+          const isSocial = link.type === "social" && platform;
+          return (
+            <div
+              key={link.id}
+              className={`flex items-center gap-2 p-3 border rounded-lg bg-card ${
+                !link.active ? "opacity-50" : ""
+              }`}
+            >
+              <div className="text-muted-foreground">
+                <GripVertical className="w-5 h-5" />
+              </div>
+              {link.imageUrl ? (
+                <div className="relative w-10 h-10 rounded overflow-hidden">
+                  <Image
+                    src={link.imageUrl}
+                    alt=""
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : isSocial ? (
+                <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center">
+                  {(() => {
+                    const Icon = platform.icon;
+                    return <Icon className="w-5 h-5" />;
+                  })()}
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
+                  <ImagePlus className="w-4 h-4 text-muted-foreground" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0 mr-2">
+                <p className="font-medium truncate">{link.title}</p>
+                <p className="text-sm text-muted-foreground truncate">{link.url}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm">
+                  {link.active ? "Hide" : "Show"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
-            <div className="w-10 h-10 rounded border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
-              <ImagePlus className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div className="flex-1 min-w-0 mr-2">
-              <p className="font-medium truncate">{link.title}</p>
-              <p className="text-sm text-muted-foreground truncate">{link.url}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm">
-                {link.active ? "Hide" : "Show"}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive"
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   }
