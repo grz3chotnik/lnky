@@ -1,0 +1,42 @@
+// Prisma Schema for Lnky - Link in Bio App
+// This file defines our database structure
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User model - stores account information
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique // The claimed username (e.g., "john" for lnky.com/john)
+  password      String    // Hashed password
+  displayName   String?   // Display name shown on profile
+  bio           String?   // Short bio/description
+  avatarUrl     String?   // Profile picture URL
+  theme         String    @default("default") // Theme preference
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relation: A user can have many links
+  links         Link[]
+}
+
+// Link model - stores individual links for each user
+model Link {
+  id        String   @id @default(cuid())
+  title     String   // Display text for the link (e.g., "My YouTube")
+  url       String   // The actual URL
+  order     Int      // Order in which links appear (0, 1, 2...)
+  active    Boolean  @default(true) // Can hide links without deleting
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relation: Each link belongs to one user
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
