@@ -25,8 +25,8 @@ export async function POST(request: Request) {
       select: { id: true },
     });
 
-    const userLinkIds = new Set(userLinks.map((l) => l.id));
-    const allBelongToUser = linkIds.every((id) => userLinkIds.has(id));
+    const userLinkIds = new Set(userLinks.map((l: { id: string }) => l.id));
+    const allBelongToUser = linkIds.every((id: string) => userLinkIds.has(id));
 
     if (!allBelongToUser) {
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
     // Update order for each link
     await Promise.all(
-      linkIds.map((id, index) =>
+      linkIds.map((id: string, index: number) =>
         db.link.update({
           where: { id },
           data: { order: index },
