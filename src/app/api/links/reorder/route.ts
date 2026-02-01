@@ -46,8 +46,7 @@ export async function POST(request: Request) {
     );
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Reorder links error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

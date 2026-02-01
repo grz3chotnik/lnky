@@ -19,6 +19,7 @@ model User {
   bio           String?   // Short bio/description
   avatarUrl     String?   // Profile picture URL
   backgroundUrl String?   // Custom background image URL
+  cursorUrl     String?   // Custom cursor image URL
   bgColor       String?   // Background color
   textColor     String?   // Text color
   accentColor   String?   // Accent/button color

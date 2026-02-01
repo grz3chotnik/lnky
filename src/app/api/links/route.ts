@@ -5,17 +5,13 @@ import { db } from "@/lib/db";
 // POST /api/links - Create a new link
 export async function POST(request: Request) {
   try {
-    // Check if user is authenticated
     const session = await auth();
-    console.log("Session in /api/links:", JSON.stringify(session, null, 2));
-
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const { title, url, order, type, platform } = body;
-    console.log("Creating link:", { title, url, order, type, platform, userId: session.user.id });
 
     // Validate required fields
     if (!title || !url) {
@@ -37,10 +33,8 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("Link created:", link);
     return NextResponse.json(link, { status: 201 });
-  } catch (error) {
-    console.error("Create link error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Database error" },
       { status: 500 }
@@ -62,8 +56,7 @@ export async function GET() {
     });
 
     return NextResponse.json(links);
-  } catch (error) {
-    console.error("Get links error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

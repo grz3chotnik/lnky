@@ -75,7 +75,6 @@ export function LinkForm({ userId, linkCount }: LinkFormProps) {
       toast.success("Link added");
       router.refresh();
     } catch (err) {
-      console.error("Link form error:", err);
       setError(err instanceof Error ? err.message : "Network error");
     } finally {
       setLoading(false);

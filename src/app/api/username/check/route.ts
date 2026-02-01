@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { usernameLimiter, rateLimitResponse } from "@/lib/rate-limit";
 
 // GET /api/username/check?username=xxx
 // Checks if a username is available
 
 export async function GET(request: Request) {
+  const { success } = usernameLimiter(request);
+  if (!success) {
+    return rateLimitResponse();
+  }
   const { searchParams } = new URL(request.url);
   const username = searchParams.get("username");
 

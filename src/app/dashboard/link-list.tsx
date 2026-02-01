@@ -270,8 +270,8 @@ export function LinkList({ links: initialLinks }: LinkListProps) {
         setLinks((prev) => prev.filter((l) => l.id !== linkId));
         router.refresh();
       }
-    } catch (error) {
-      console.error("Failed to delete link:", error);
+    } catch {
+      // Failed to delete
     } finally {
       setDeletingId(null);
     }
@@ -288,8 +288,8 @@ export function LinkList({ links: initialLinks }: LinkListProps) {
         prev.map((l) => (l.id === linkId ? { ...l, active: !currentActive } : l))
       );
       router.refresh();
-    } catch (error) {
-      console.error("Failed to toggle link:", error);
+    } catch {
+      // Failed to toggle
     }
   }
 
@@ -315,8 +315,7 @@ export function LinkList({ links: initialLinks }: LinkListProps) {
           body: JSON.stringify({ linkIds: reorderedIds }),
         });
         router.refresh();
-      } catch (error) {
-        console.error("Failed to reorder links:", error);
+      } catch {
         setLinks(initialLinks);
       }
     }

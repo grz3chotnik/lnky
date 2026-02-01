@@ -119,6 +119,7 @@ export default async function DashboardPage() {
           <CardContent className="pt-0">
             <Customization
               currentBackgroundUrl={user?.backgroundUrl ?? null}
+              currentCursorUrl={user?.cursorUrl ?? null}
               currentBgColor={user?.bgColor ?? null}
               currentTextColor={user?.textColor ?? null}
               currentAccentColor={user?.accentColor ?? null}

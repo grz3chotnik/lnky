@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { signupLimiter, rateLimitResponse } from "@/lib/rate-limit";
 
 // POST /api/auth/signup
 // Creates a new user account
 
 export async function POST(request: Request) {
+  const { success } = signupLimiter(request);
+  if (!success) {
+    return rateLimitResponse();
+  }
+
   try {
     const body = await request.json();
     const { email, password, username } = body;
@@ -100,8 +106,7 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Signup error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

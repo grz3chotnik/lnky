@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { TrackView } from "@/components/track-view";
 import { ProfileLinks } from "@/components/profile-links";
+import { CustomCursor } from "@/components/custom-cursor";
 
 // Public Profile Page - Shows user's links at /username
 // This is what visitors see when they click someone's lnky link
@@ -45,6 +46,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       }`}
       style={customStyles}
     >
+      {user.cursorUrl && <CustomCursor cursorUrl={user.cursorUrl} />}
       <TrackView username={user.username} />
 
       {/* Background Image */}
@@ -148,7 +150,7 @@ export async function generateMetadata({ params }: ProfilePageProps) {
       }),
     },
     twitter: {
-      card: user.avatarUrl ? "summary" : "summary",
+      card: user.avatarUrl ? "summary_large_image" : "summary",
       title: displayName,
       description,
       ...(user.avatarUrl && {

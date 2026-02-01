@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useUploadThing } from "@/lib/uploadthing-client";
-import { ImageIcon, X, RotateCcw } from "lucide-react";
+import { ImageIcon, X, RotateCcw, MousePointer2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ColorPicker } from "@/components/ui/color-picker";
@@ -23,6 +23,7 @@ import {
 
 interface CustomizationProps {
   currentBackgroundUrl: string | null;
+  currentCursorUrl: string | null;
   currentBgColor: string | null;
   currentTextColor: string | null;
   currentAccentColor: string | null;
@@ -30,6 +31,7 @@ interface CustomizationProps {
 
 export function Customization({
   currentBackgroundUrl,
+  currentCursorUrl,
   currentBgColor,
   currentTextColor,
   currentAccentColor,
@@ -40,6 +42,10 @@ export function Customization({
   const [backgroundUrl, setBackgroundUrl] = useState<string | null>(currentBackgroundUrl);
   const bgInputRef = useRef<HTMLInputElement>(null);
 
+  // Cursor state
+  const [cursorUrl, setCursorUrl] = useState<string | null>(currentCursorUrl);
+  const cursorInputRef = useRef<HTMLInputElement>(null);
+
   // Color state
   const [bgColor, setBgColor] = useState(currentBgColor || "");
   const [textColor, setTextColor] = useState(currentTextColor || "");
@@ -48,6 +54,7 @@ export function Customization({
 
   // Loading states
   const [removingBg, setRemovingBg] = useState(false);
+  const [removingCursor, setRemovingCursor] = useState(false);
 
   const { startUpload: uploadBackground, isUploading: uploadingBg } = useUploadThing("backgroundImage", {
     onClientUploadComplete: (res) => {
@@ -63,12 +70,35 @@ export function Customization({
     },
   });
 
+  const { startUpload: uploadCursor, isUploading: uploadingCursor } = useUploadThing("cursorImage", {
+    onClientUploadComplete: (res) => {
+      if (res?.[0]?.url) {
+        setCursorUrl(res[0].url);
+        toast.success("Cursor image uploaded");
+        router.refresh();
+      }
+    },
+    onUploadError: (err) => {
+      toast.error(err.message || "Failed to upload cursor");
+      setCursorUrl(currentCursorUrl);
+    },
+  });
+
   const handleBgSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const objectUrl = URL.createObjectURL(file);
     setBackgroundUrl(objectUrl);
     await uploadBackground([file]);
+    URL.revokeObjectURL(objectUrl);
+  };
+
+  const handleCursorSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setCursorUrl(objectUrl);
+    await uploadCursor([file]);
     URL.revokeObjectURL(objectUrl);
   };
 
@@ -83,6 +113,20 @@ export function Customization({
       toast.error("Failed to remove background");
     } finally {
       setRemovingBg(false);
+    }
+  };
+
+  const removeCursor = async () => {
+    setRemovingCursor(true);
+    try {
+      await fetch("/api/user/cursor", { method: "DELETE" });
+      setCursorUrl(null);
+      toast.success("Cursor image removed");
+      router.refresh();
+    } catch {
+      toast.error("Failed to remove cursor");
+    } finally {
+      setRemovingCursor(false);
     }
   };
 
@@ -236,6 +280,67 @@ export function Customization({
           type="file"
           accept="image/*"
           onChange={handleBgSelect}
+          className="hidden"
+        />
+      </div>
+
+      {/* Cursor Upload */}
+      <div className="flex items-center gap-3 pt-4 border-t">
+        <div className="relative shrink-0">
+          <button
+            type="button"
+            onClick={() => cursorInputRef.current?.click()}
+            disabled={uploadingCursor}
+            className="w-14 h-14 rounded-lg overflow-hidden bg-muted border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer flex items-center justify-center"
+          >
+            {cursorUrl ? (
+              <Image
+                src={cursorUrl}
+                alt="Cursor"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
+            ) : (
+              <MousePointer2 className="w-5 h-5 text-muted-foreground" />
+            )}
+            {uploadingCursor && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+          </button>
+          {cursorUrl && !uploadingCursor && (
+            <AlertDialog>
+              <AlertDialogTrigger className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center hover:bg-destructive/90 cursor-pointer">
+                <X className="w-3 h-3" />
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Remove custom cursor?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will remove your custom cursor image.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={removeCursor}>
+                    Remove
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          <p className="font-medium text-foreground">Custom cursor</p>
+          <p>Upload an image (max 512KB, 32x32 recommended)</p>
+        </div>
+        <input
+          ref={cursorInputRef}
+          type="file"
+          accept="image/png,image/gif,image/webp"
+          onChange={handleCursorSelect}
           className="hidden"
         />
       </div>

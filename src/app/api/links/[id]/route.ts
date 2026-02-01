@@ -30,8 +30,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Delete link error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }
@@ -75,8 +74,7 @@ export async function PATCH(
     });
 
     return NextResponse.json(link);
-  } catch (error) {
-    console.error("Update link error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }
