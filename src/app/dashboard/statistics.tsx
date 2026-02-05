@@ -12,7 +12,7 @@ export async function Statistics({ userId }: StatisticsProps) {
   });
 
   const linkCount = await db.link.count({
-    where: { userId },
+    where: { userId, active: true },
   });
 
   const stats = [
