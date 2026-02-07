@@ -159,7 +159,7 @@ export default async function LandingPage() {
       {/* Footer */}
       <footer className="border-t py-6">
         <div className="max-w-5xl mx-auto px-4 text-center text-muted-foreground text-xs sm:text-sm">
-          Built with ❤️ by grz3chotnik
+          Built with ❤️ by <Link href="https://github.com/grz3chotnik" >grz3chotnik</Link>
         </div>
       </footer>
     </div>
